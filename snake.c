@@ -122,7 +122,8 @@ void render_message(const char *message) {
   SDL_Surface *surface = TTF_RenderText_Solid(font, message, color);
   SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-  SDL_Rect message_rect = {SCREEN_WIDTH / 8, SCREEN_HEIGHT / 3, surface->w,
+  SDL_Rect message_rect = {(SCREEN_WIDTH - surface->w) / 2,
+                           (SCREEN_HEIGHT - surface->h) / 2, surface->w,
                            surface->h};
   SDL_RenderCopy(renderer, texture, NULL, &message_rect);
 
