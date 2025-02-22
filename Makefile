@@ -1,5 +1,5 @@
 CC?=gcc
-SDL2FLAGS=$(shell pkg-config sdl2 --cflags --libs)
+SDL2FLAGS=$(shell pkg-config sdl2 --cflags --libs) -lSDL2_ttf
 CFLAGS?=-std=c11 -Wall -pedantic -Werror -Wshadow -Wstrict-aliasing -Wstrict-overflow
 
 .PHONY: all msg clean fullclean
