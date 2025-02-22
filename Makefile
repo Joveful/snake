@@ -4,31 +4,31 @@ CFLAGS?=-std=c11 -Wall -pedantic -Werror -Wshadow -Wstrict-aliasing -Wstrict-ove
 
 .PHONY: all msg clean fullclean
 
-all: msg main
+all: msg snake
 
 msg:
 	@echo '--- C11 ---'
 
-main: main.c
+snake: snake.c
 	${CC} ${CFLAGS} -O2 -o $@ $< ${SDL2FLAGS}
 
-small: main.c
-	${CC} ${CFLAGS} -Os -o main $< ${SDL2FLAGS}
-	-strip main
-	-sstrip main
+small: snake.c
+	${CC} ${CFLAGS} -Os -o snake $< ${SDL2FLAGS}
+	-strip snake
+	-sstrip snake
 
-debug: main.c
-	${CC} ${CFLAGS} -O1 -g -o main $< ${SDL2FLAGS}
+debug: snake.c
+	${CC} ${CFLAGS} -O1 -g -o snake $< ${SDL2FLAGS}
 
-asm: main.asm
+asm: snake.asm
 
-main.asm: main.c
-	${CC} ${CFLAGS} -S -masm=intel -Og -o main.asm $< ${SDL2FLAGS}
+snake.asm: snake.c
+	${CC} ${CFLAGS} -S -masm=intel -Og -o snake.asm $< ${SDL2FLAGS}
 
-run: msg main
-	time ./main
+run: msg snake
+	time ./snake
 
 clean:
-	rm -f main *.o main.asm
+	rm -f snake *.o snake.asm
 
 fullclean: clean
