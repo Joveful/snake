@@ -157,6 +157,30 @@ int main() {
 
   SDL_Event event;
 
+  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+  SDL_RenderClear(renderer);
+  render_message("Press Enter to start the game.");
+  SDL_RenderPresent(renderer);
+
+  // printf("Game over! Press 'r' to try again or 'q' to quit.\n");
+  bool waiting = true;
+  while (waiting) {
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_KEYDOWN) {
+        if (event.key.keysym.sym == SDLK_RETURN) {
+          waiting = false;
+        } else if (event.key.keysym.sym == SDLK_q) {
+          TTF_CloseFont(font);
+          TTF_Quit();
+          SDL_DestroyRenderer(renderer);
+          SDL_DestroyWindow(window);
+          SDL_Quit();
+          return 0;
+        }
+      }
+    }
+  }
+
   do {
     running = true;
     init_snake();
@@ -177,7 +201,7 @@ int main() {
     SDL_RenderPresent(renderer);
 
     printf("Game over! Press 'r' to try again or 'q' to quit.\n");
-    bool waiting = true;
+    waiting = true;
     while (waiting) {
       while (SDL_PollEvent(&event)) {
         if (event.type == SDL_KEYDOWN) {
