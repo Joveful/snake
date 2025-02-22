@@ -2,6 +2,7 @@
  * Snake game with SDL2 graphics library
  */
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_ttf.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,6 +25,7 @@ typedef struct {
 
 SDL_Window *window = NULL;
 SDL_Renderer *renderer = NULL;
+TTF_Font *font = NULL;
 Snake snake;
 Point food;
 bool running = true;
@@ -115,6 +117,19 @@ void render_food() {
   SDL_RenderFillRect(renderer, &rect);
 }
 
+void render_message(const char *message) {
+  SDL_Color color = {255, 255, 255, 255};
+  SDL_Surface *surface = TTF_RenderText_Solid(font, message, color);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  SDL_Rect message_rect = {SCREEN_WIDTH / 8, SCREEN_HEIGHT / 3, surface->w,
+                           surface->h};
+  SDL_RenderCopy(renderer, texture, NULL, &message_rect);
+
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+}
+
 void render() {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
@@ -126,23 +141,59 @@ void render() {
 int main() {
   srand(time(NULL));
   SDL_Init(SDL_INIT_VIDEO);
+  TTF_Init();
+
   window =
       SDL_CreateWindow("Snake Game", SDL_WINDOWPOS_CENTERED,
                        SDL_WINDOWPOS_CENTERED, SCREEN_WIDTH, SCREEN_HEIGHT, 0);
   renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
-  init_snake();
-  place_food();
+  font = TTF_OpenFont("JetBrainsMonoNerdFontMono-Regular.ttf", 24);
+  if (!font) {
+    fprintf(stderr, "Error loading font: %s\n", TTF_GetError());
+    return 1;
+  }
 
   SDL_Event event;
-  while (running) {
-    while (SDL_PollEvent(&event)) {
-      handle_input(&event);
+
+  do {
+    running = true;
+    init_snake();
+    place_food();
+
+    while (running) {
+      while (SDL_PollEvent(&event)) {
+        handle_input(&event);
+      }
+      move_snake();
+      render();
+      SDL_Delay(100);
     }
-    move_snake();
-    render();
-    SDL_Delay(100);
-  }
+
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
+    render_message("Game Over! Press 'r' to retry or 'q' to quit.");
+    SDL_RenderPresent(renderer);
+
+    printf("Game over! Press 'r' to try again or 'q' to quit.\n");
+    bool waiting = true;
+    while (waiting) {
+      while (SDL_PollEvent(&event)) {
+        if (event.type == SDL_KEYDOWN) {
+          if (event.key.keysym.sym == SDLK_r) {
+            waiting = false;
+          } else if (event.key.keysym.sym == SDLK_q) {
+            TTF_CloseFont(font);
+            TTF_Quit();
+            SDL_DestroyRenderer(renderer);
+            SDL_DestroyWindow(window);
+            SDL_Quit();
+            return 0;
+          }
+        }
+      }
+    }
+  } while (true);
 
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
