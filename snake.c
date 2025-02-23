@@ -29,6 +29,7 @@ TTF_Font *font = NULL;
 Snake snake;
 Point food;
 bool running = true;
+int score = 0;
 
 void place_food() {
   food.x = (rand() % (SCREEN_WIDTH / GRID_SIZE)) * GRID_SIZE;
@@ -43,6 +44,7 @@ void init_snake() {
     snake.body[i].x = SCREEN_WIDTH / 2 - i * GRID_SIZE;
     snake.body[i].y = SCREEN_HEIGHT / 2;
   }
+  score = 0;
 }
 
 void move_snake() {
@@ -55,6 +57,7 @@ void move_snake() {
   if (snake.body[0].x == food.x && snake.body[0].y == food.y) {
     snake.length++;
     place_food();
+    score++;
   }
 
   if (snake.body[0].x < 0 || snake.body[0].x >= SCREEN_WIDTH ||
@@ -131,11 +134,26 @@ void render_message(const char *message) {
   SDL_DestroyTexture(texture);
 }
 
+void render_score() {
+  char score_text[50];
+  sprintf(score_text, "Score: %d", score);
+  SDL_Color color = {255, 255, 255, 255};
+  SDL_Surface *surface = TTF_RenderText_Solid(font, score_text, color);
+  SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+  SDL_Rect score_rect = {10, 10, surface->w, surface->h};
+  SDL_RenderCopy(renderer, texture, NULL, &score_rect);
+
+  SDL_FreeSurface(surface);
+  SDL_DestroyTexture(texture);
+}
+
 void render() {
   SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
   SDL_RenderClear(renderer);
   render_snake();
   render_food();
+  render_score();
   SDL_RenderPresent(renderer);
 }
 
@@ -162,7 +180,6 @@ int main() {
   render_message("Press Enter to start the game.");
   SDL_RenderPresent(renderer);
 
-  // printf("Game over! Press 'r' to try again or 'q' to quit.\n");
   bool waiting = true;
   while (waiting) {
     while (SDL_PollEvent(&event)) {
@@ -220,6 +237,8 @@ int main() {
     }
   } while (true);
 
+  TTF_CloseFont(font);
+  TTF_Quit();
   SDL_DestroyRenderer(renderer);
   SDL_DestroyWindow(window);
   SDL_Quit();
