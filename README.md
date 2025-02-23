@@ -1,6 +1,6 @@
 # Snake
 
-My dumb attempt at creating the classic game in C.
+My dumb attempt at creating the classic game in C. This is just and exercise to practice my C skills and to learn how to use SDL2 for GUI.
 
 ## Requirements
 
